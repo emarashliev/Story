@@ -4,7 +4,11 @@ import UIKit
 final class ImageCache {
     
     static let shared = ImageCache()
-    private let cachedImages = NSCache<NSURL, UIImage>()
+    lazy private var cachedImages: NSCache<NSURL, UIImage> = {
+        let cache = NSCache<NSURL, UIImage>()
+        cache.totalCostLimit = 50_000_000
+        return cache
+    }()
     
     func load(url: String?) async throws -> UIImage? {
         guard let url = url, let nsurl = NSURL(string: url) else { return  nil}
