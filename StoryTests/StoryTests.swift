@@ -1,36 +1,50 @@
-//
-//  StoryTests.swift
-//  StoryTests
-//
-//  Created by Emil Marashliev on 10.09.22.
-//
 
 import XCTest
+import Combine
 @testable import Story
 
 class StoryTests: XCTestCase {
-
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    
+    func testViewModelState_initialLoading() throws {
+        let mockService = MockService()
+        let viewModel = ListViewModel(storyService: mockService)
+        viewModel.fetchFirstPage()
+        XCTAssertEqual(viewModel.state, .initialLoading)
     }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    
+    func testViewModelState_loading() throws {
+        let mockService = MockService()
+        let viewModel = ListViewModel(storyService: mockService)
+        viewModel.fetchNextPage()
+        XCTAssertEqual(viewModel.state, .loading)
     }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    
+    func testViewModelState_finishedLoading() throws {
+        let mockService = MockService()
+        let viewModel = ListViewModel(storyService: mockService)
+        viewModel.fetchFirstPage()
+        mockService.subject.send(completion: .finished)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            XCTAssertEqual(viewModel.state, .finishedLoading)
         }
     }
+    
+    func testViewModelState_loadedAllItems() throws {
+        let mockService = MockService()
+        let viewModel = ListViewModel(storyService: mockService)
+        viewModel.fetchFirstPage()
+        mockService.subject.send(ItemData(query: "harry", nextPageToken: nil, items: []))
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            XCTAssertEqual(viewModel.state, .loadedAllItems)
+        }
+    }
+}
 
+fileprivate class MockService: ServiceProtocol {
+    let subject = PassthroughSubject<ItemData, Error>()
+    
+    func get(page: Int?, query: String) -> AnyPublisher<ItemData, Error> {
+        let subject = PassthroughSubject<ItemData, Error>()
+        return subject.eraseToAnyPublisher()
+    }
 }
