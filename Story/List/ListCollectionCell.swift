@@ -21,6 +21,10 @@ final class ListCollectionCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    override func prepareForReuse() {
+        cover.image = UIImage(systemName: "text.book.closed")
+    }
 }
 
 extension ListCollectionCell {
