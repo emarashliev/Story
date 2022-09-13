@@ -8,7 +8,7 @@ protocol ModelStore {
     func fetchByID(_ id: Model.ID) -> Model?
 }
 
-struct AnyModelStore<Model>: ModelStore where Model: Identifiable, Model: Hashable {
+struct AnyModelStore<Model>: ModelStore where Model: Identifiable {
     
     private var models = [Model.ID: Model]()
     
@@ -17,7 +17,7 @@ struct AnyModelStore<Model>: ModelStore where Model: Identifiable, Model: Hashab
     }
     
     init(_ models: [Model]) {
-        self.models = Set(models).groupingByUniqueID()
+        self.models = models.groupingByUniqueID()
     }
     
     func fetchByID(_ id: Model.ID) -> Model? {

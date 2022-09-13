@@ -3,7 +3,7 @@ import Foundation
 
 struct Item: Identifiable {
     
-    let id: Int
+    var id = UUID()
     let title: String
     let authors: [Person]
     let narrators: [Person]
@@ -12,21 +12,10 @@ struct Item: Identifiable {
 
 extension Item: Decodable {
     enum CodingKeys: String, CodingKey {
-        case id = "bookId"
         case title
         case authors
         case narrators
         case formats
-    }
-}
-
-extension Item: Hashable {
-    static func == (lhs: Item, rhs: Item) -> Bool {
-        lhs.id == rhs.id
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
     }
 }
 
