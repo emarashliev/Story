@@ -28,15 +28,9 @@ struct AnyModelStore<Model>: ModelStore where Model: Identifiable, Model: Hashab
         models.first?.value
     }
     
-    func allIDs() -> [Model.ID] {
-        Array(models.keys)
-    }
-    
     func allModels() -> [Model]{
         Array(models.values)
     }
-    
-
 }
     
 extension Sequence where Element: Identifiable {

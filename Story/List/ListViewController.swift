@@ -33,6 +33,7 @@ final class ListViewController: UIViewController {
         configureDataSource()
         configureCollectionView()
         configureNavigationBar()
+        configureInitialData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -99,11 +100,17 @@ extension ListViewController {
         present(alertController, animated: true, completion: nil)
     }
     
-    private func updateSections() {
+    private func configureInitialData() {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item.ID>()
         snapshot.appendSections([Section.items])
-        snapshot.appendItems(viewModel.itemsStore.allIDs(), toSection: .items)
+        snapshot.appendItems(viewModel.lastFetchedItemIDs, toSection: .items)
         dataSource.apply(snapshot, animatingDifferences: false)
+    }
+    
+    private func updateSections() {
+        var snapshot = dataSource.snapshot()
+        snapshot.appendItems(viewModel.lastFetchedItemIDs, toSection: .items)
+        dataSource.apply(snapshot, animatingDifferences: true)
     }
 }
 

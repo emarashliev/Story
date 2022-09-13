@@ -20,6 +20,7 @@ final class ListViewModel {
     @Published private(set) var state: ListViewModelState = .loading
     @Published private(set) var lastQuery: String = ""
 
+    private(set) var lastFetchedItemIDs: [Item.ID] = []
     private var nextPageToken: Int? = 0
     private let storyService: ServiceProtocol
     private var bindings = Set<AnyCancellable>()
@@ -59,6 +60,7 @@ extension ListViewModel {
         let valueHandler: (ItemData) -> Void = { [weak self] itemData in
             guard let self = self else { return }
 
+            self.lastFetchedItemIDs = itemData.items.map { $0.id }
             self.itemsStore = AnyModelStore<Item>(itemData.items + self.itemsStore.allModels())
             self.lastQuery = itemData.query
             if let nextPageToken = itemData.nextPageToken {
