@@ -134,7 +134,7 @@ extension ListViewController {
             cell.narrators.text = "with \(item.narrators.map { $0.name }.joined(separator: ","))"
             Task {
                 if let image = try? await ImageCache.shared.load(url: item.formats.first?.cover.url) {
-                    cell.cover.image = image
+                    cell.cover.image = await image.byPreparingForDisplay()
                 }
             }
         }

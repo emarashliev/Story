@@ -17,7 +17,7 @@ final class ImageCache {
         }
         
         let (data, _) = try await URLSession.shared.data(from: nsurl as URL)
-        guard let image = UIImage(data: data) else { return nil }
+        guard let image = UIImage(data: data, scale: 0.5) else { return nil }
         self.cachedImages.setObject(image, forKey: nsurl, cost: data.count)
         return image
     }

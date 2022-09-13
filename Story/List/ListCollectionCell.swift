@@ -32,6 +32,8 @@ extension ListCollectionCell {
         let subviews = [cover, title, authors, narrators]
         
         cover.tintColor = .black
+        cover.contentMode = .scaleAspectFit
+        cover.backgroundColor = UIColor(red: 0.9176, green: 0.9176, blue: 0.9176, alpha: 1.0)
         title.textColor = .black
         title.font = UIFont.boldSystemFont(ofSize: 17.0)
         authors.textColor = .gray
