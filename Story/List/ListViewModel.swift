@@ -8,7 +8,6 @@ enum ListViewModelError: Error, Equatable {
 
 enum ListViewModelState: Equatable {
     case initialLoading
-    case loading
     case finishedLoading
     case loadedAllItems
     case error(ListViewModelError)
@@ -16,9 +15,9 @@ enum ListViewModelState: Equatable {
 
 final class ListViewModel {
         
-    @Published private(set) var itemsStore = AnyModelStore<Item>([])
-    @Published private(set) var state: ListViewModelState = .loading
-    @Published private(set) var lastQuery: String = ""
+    @MainActor @Published private(set) var itemsStore = AnyModelStore<Item>([])
+    @MainActor @Published private(set) var state: ListViewModelState = .initialLoading
+    @MainActor @Published private(set) var lastQuery: String = ""
     private(set) var lastFetchedItemIDs: [Item.ID] = []
     
     private var nextPageToken: Int? = 0
@@ -31,19 +30,18 @@ final class ListViewModel {
 }
 
 extension ListViewModel {
-    func fetchFirstPage() {
+    @MainActor func fetchFirstPage() {
         state = .initialLoading
         fetchItems(page: 0)
     }
     
-    func fetchNextPage() {
+    @MainActor func fetchNextPage() {
         if let nextPageToken = nextPageToken {
-            state = .loading
             fetchItems(page: nextPageToken)
         }
     }
     
-    private func fetchItems(page: Int) {
+    @MainActor private func fetchItems(page: Int) {
         let completionHandler: (Subscribers.Completion<Error>) -> Void = { [weak self] completion in
             switch completion {
             case .failure:

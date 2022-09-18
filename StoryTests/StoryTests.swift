@@ -5,21 +5,21 @@ import Combine
 
 class StoryTests: XCTestCase {
     
-    func testViewModelState_initialLoading() throws {
+    @MainActor func testViewModelState_initialLoading() throws {
         let mockService = MockService()
         let viewModel = ListViewModel(storyService: mockService)
         viewModel.fetchFirstPage()
         XCTAssertEqual(viewModel.state, .initialLoading)
     }
     
-    func testViewModelState_loading() throws {
+    @MainActor func testViewModelState_loading() throws {
         let mockService = MockService()
         let viewModel = ListViewModel(storyService: mockService)
         viewModel.fetchNextPage()
         XCTAssertEqual(viewModel.state, .loading)
     }
     
-    func testViewModelState_finishedLoading() throws {
+    @MainActor func testViewModelState_finishedLoading() throws {
         let mockService = MockService()
         let viewModel = ListViewModel(storyService: mockService)
         viewModel.fetchFirstPage()
@@ -29,7 +29,7 @@ class StoryTests: XCTestCase {
         }
     }
     
-    func testViewModelState_loadedAllItems() throws {
+    @MainActor func testViewModelState_loadedAllItems() throws {
         let mockService = MockService()
         let viewModel = ListViewModel(storyService: mockService)
         viewModel.fetchFirstPage()
@@ -40,7 +40,7 @@ class StoryTests: XCTestCase {
     }
 }
 
-fileprivate class MockService: ServiceProtocol {
+fileprivate class MockService: Service {
     let subject = PassthroughSubject<ItemData, Error>()
     
     func get(page: Int?, query: String) -> AnyPublisher<ItemData, Error> {

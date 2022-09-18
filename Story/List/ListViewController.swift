@@ -9,7 +9,7 @@ final class ListViewController: UIViewController {
     private typealias CellRegistration = UICollectionView.CellRegistration<ListCollectionCell, Item.ID>
     private typealias HeaderRegistration = UICollectionView.SupplementaryRegistration<ListCollectionHeader>
     private typealias FooterRegistration = UICollectionView.SupplementaryRegistration<ListCollectionFooter>
-
+    
     private var dataSource: DataSource! = nil
     private lazy var contentView = ListView()
     private let viewModel: ListViewModel
@@ -48,47 +48,46 @@ extension ListViewController {
     private func configureCollectionView() {
         contentView.collectionView.delegate = self
         
-        viewModel.$lastQuery
-            .receive(on: RunLoop.main)
-            .sink(receiveValue: { [weak self] query in
-                if let collectionHeader = self?.getCollectionHeader(for: self?.contentView.collectionView) {
-                    collectionHeader.text = "Query: \(query.capitalized)"
+        Task {
+            for await query in viewModel.$lastQuery.values {
+                await MainActor.run { [weak self]  in
+                    if let collectionHeader = self?.getCollectionHeader(for: self?.contentView.collectionView) {
+                        collectionHeader.text = "Query: \(query.capitalized)"
+                    }
                 }
-            })
-            .store(in: &bindings)
-        
-        viewModel.$itemsStore
-            .receive(on: RunLoop.main)
-            .sink(receiveValue: { [weak self] _ in
-                self?.updateSections()
-            })
-            .store(in: &bindings)
-        
-        let stateValueHandler: (ListViewModelState) -> Void = { [weak self] state in
-            switch state {
-            case .initialLoading:
-                self?.contentView.startLoading()
-            case .loading:
-                if let collectionFooter = self?.getCollectionFooter(for: self?.contentView.collectionView) {
-                    collectionFooter.startLoading()
-                }
-            case .loadedAllItems:
-                if let collectionFooter = self?.getCollectionFooter(for: self?.contentView.collectionView) {
-                    collectionFooter.finishLoading()
-                }
-            case .finishedLoading:
-                self?.contentView.finishLoading()
-            case .error(let error):
-                self?.contentView.finishLoading()
-                self?.showError(error)
             }
         }
         
-        viewModel.$state
-            .receive(on: RunLoop.main)
-            .removeDuplicates()
-            .sink(receiveValue: stateValueHandler)
-            .store(in: &bindings)
+        Task {
+            for await _ in viewModel.$itemsStore.values {
+                await MainActor.run { [weak self]  in
+                    self?.updateSections()
+                }
+            }
+        }
+        
+        Task {
+            for await state in viewModel.$state.values {
+                await MainActor.run { [weak self]  in
+                    switch state {
+                    case .initialLoading:
+                        self?.contentView.startLoading()
+                        if let collectionFooter = self?.getCollectionFooter(for: self?.contentView.collectionView) {
+                            collectionFooter.startLoading()
+                        }
+                    case .loadedAllItems:
+                        if let collectionFooter = self?.getCollectionFooter(for: self?.contentView.collectionView) {
+                            collectionFooter.finishLoading()
+                        }
+                    case .finishedLoading:
+                        self?.contentView.finishLoading()
+                    case .error(let error):
+                        self?.contentView.finishLoading()
+                        self?.showError(error)
+                    }
+                }
+            }
+        }
     }
     
     private func showError(_ error: Error) {
