@@ -3,7 +3,7 @@ import Foundation
 
 struct Item: Identifiable {
     
-    var id = UUID()
+    let id = UUID()
     let title: String
     let authors: [Person]
     let narrators: [Person]

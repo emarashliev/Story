@@ -53,7 +53,7 @@ extension ListView {
             activityIndicatorView.centerXAnchor.constraint(equalTo: centerXAnchor),
             activityIndicatorView.centerYAnchor.constraint(equalTo: centerYAnchor),
             activityIndicatorView.heightAnchor.constraint(equalToConstant: 50),
-            activityIndicatorView.widthAnchor.constraint(equalToConstant: 50.0)
+            activityIndicatorView.widthAnchor.constraint(equalToConstant: 50)
         ])
     }
     

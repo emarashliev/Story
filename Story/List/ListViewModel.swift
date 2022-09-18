@@ -19,8 +19,8 @@ final class ListViewModel {
     @Published private(set) var itemsStore = AnyModelStore<Item>([])
     @Published private(set) var state: ListViewModelState = .loading
     @Published private(set) var lastQuery: String = ""
-
     private(set) var lastFetchedItemIDs: [Item.ID] = []
+    
     private var nextPageToken: Int? = 0
     private let storyService: ServiceProtocol
     private var bindings = Set<AnyCancellable>()

@@ -127,7 +127,7 @@
 		6CF454FF28CD2F1C0081CA25 /* API */ = {
 			isa = PBXGroup;
 			children = (
-				6CF4550828CD30240081CA25 /* Stores */,
+				6CF4550828CD30240081CA25 /* Store */,
 				6CF4550128CD2F450081CA25 /* Service */,
 				6CF4550028CD2F360081CA25 /* Model */,
 			);
@@ -151,12 +151,12 @@
 			path = Service;
 			sourceTree = "<group>";
 		};
-		6CF4550828CD30240081CA25 /* Stores */ = {
+		6CF4550828CD30240081CA25 /* Store */ = {
 			isa = PBXGroup;
 			children = (
 				6CF4550928CD303D0081CA25 /* ModelStore.swift */,
 			);
-			path = Stores;
+			path = Store;
 			sourceTree = "<group>";
 		};
 		6CF4550B28CD30EC0081CA25 /* List */ = {
