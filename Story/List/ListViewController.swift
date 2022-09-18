@@ -139,9 +139,13 @@ extension ListViewController {
             cell.title.text = item.title
             cell.authors.text = "by \(item.authors.map { $0.name }.joined(separator: ","))"
             cell.narrators.text = "with \(item.narrators.map { $0.name }.joined(separator: ","))"
+            
+            let size = cell.cover.frame.size
             Task {
-                if let image = try? await ImageCache.shared.load(url: item.formats.first?.cover.url) {
-                    cell.cover.image = await image.byPreparingForDisplay()
+                if let sizedImage = try? await self.resizeCover(with: item, for: size) {
+                    await MainActor.run {
+                        cell.cover.image = sizedImage
+                    }
                 }
             }
         }
@@ -190,5 +194,11 @@ extension ListViewController {
             ofKind: UICollectionView.elementKindSectionFooter
         )
         return supplementaryViews?.first as? ListCollectionFooter
+    }
+    
+    @ImageCache private func resizeCover(with item: Item, for size: CGSize) async throws -> UIImage? {
+        let scale =  size.height / CGFloat(item.formats.first?.cover.height ?? 1)
+        let image = try await ImageCache.shared.load(url: item.formats.first?.cover.url, scale: scale)
+        return await image?.byPreparingForDisplay()
     }
 }
