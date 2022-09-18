@@ -18,7 +18,6 @@ final class StoryService: Service {
         var dataTask: URLSessionDataTask?
         
         let onSubscription: (Subscription) -> Void = { _ in dataTask?.resume() }
-        let onCancel: () -> Void = { dataTask?.cancel() }
         
         return Future<ItemData, Error> { [weak self] promise in
             guard let urlRequest = self?.getUrlRequest(page: page, query: query) else {
@@ -41,7 +40,8 @@ final class StoryService: Service {
                 }
             }
         }
-        .handleEvents(receiveSubscription: onSubscription, receiveCancel: onCancel)
+        .retry(2)
+        .handleEvents(receiveSubscription: onSubscription)
         .receive(on: DispatchQueue.main)
         .eraseToAnyPublisher()
     }

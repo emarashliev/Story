@@ -171,14 +171,9 @@ extension ListViewController {
 extension ListViewController {
     private func configureNavigationBar() {
         let standardAppearance = UINavigationBarAppearance()
-        standardAppearance.configureWithDefaultBackground()
+        standardAppearance.configureWithTransparentBackground()
         standardAppearance.backgroundColor = .gray
-        
-        let scrollEdgeAppearance = UINavigationBarAppearance()
-        scrollEdgeAppearance.configureWithTransparentBackground()
-        scrollEdgeAppearance.backgroundColor = .clear
         navigationItem.standardAppearance = standardAppearance
-        navigationItem.scrollEdgeAppearance = scrollEdgeAppearance
     }
     
     private func getCollectionHeader(for collectionView: UICollectionView?) -> ListCollectionHeader? {
