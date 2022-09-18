@@ -27,8 +27,8 @@ struct AnyModelStore<Model>: ModelStore where Model: Identifiable {
         models.first?.value
     }
     
-    func allModels() -> [Model]{
-        Array(models.values)
+    mutating func append(models: [Model]) {
+        self.models.merge(models.groupingByUniqueID()) { old, _ in old }
     }
 }
     

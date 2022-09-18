@@ -2,7 +2,7 @@
 import UIKit
 
 @globalActor actor ImageCache {
-    static var shared  = ImageCache()
+    static let shared  = ImageCache()
     
     private let cachedImages: NSCache<NSURL, UIImage>
  
@@ -13,6 +13,7 @@ import UIKit
     
     func load(url: String?, scale: CGFloat) async throws -> UIImage? {
         guard let url = url, let nsurl = NSURL(string: url) else { return  nil}
+        
         if let cachedImage = cachedImages.object(forKey: nsurl) {
             return cachedImage
         }

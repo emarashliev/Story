@@ -142,7 +142,7 @@ extension ListViewController {
             
             let size = cell.cover.frame.size
             Task {
-                if let sizedImage = try? await self.resizeCover(with: item, for: size) {
+                if let sizedImage = try? await self.setCover(with: item, for: size) {
                     await MainActor.run {
                         cell.cover.image = sizedImage
                     }
@@ -196,7 +196,7 @@ extension ListViewController {
         return supplementaryViews?.first as? ListCollectionFooter
     }
     
-    @ImageCache private func resizeCover(with item: Item, for size: CGSize) async throws -> UIImage? {
+    @ImageCache private func setCover(with item: Item, for size: CGSize) async throws -> UIImage? {
         let scale =  size.height / CGFloat(item.formats.first?.cover.height ?? 1)
         let image = try await ImageCache.shared.load(url: item.formats.first?.cover.url, scale: scale)
         return await image?.byPreparingForDisplay()

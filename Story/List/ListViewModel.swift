@@ -22,10 +22,10 @@ final class ListViewModel {
     private(set) var lastFetchedItemIDs: [Item.ID] = []
     
     private var nextPageToken: Int? = 0
-    private let storyService: ServiceProtocol
+    private let storyService: Service
     private var bindings = Set<AnyCancellable>()
 
-    init(storyService: ServiceProtocol = StoryService()) {
+    init(storyService: Service = StoryService()) {
         self.storyService = storyService
     }
 }
@@ -61,8 +61,12 @@ extension ListViewModel {
             guard let self = self else { return }
 
             self.lastFetchedItemIDs = itemData.items.map { $0.id }
-            self.itemsStore = AnyModelStore<Item>(itemData.items + self.itemsStore.allModels())
-            self.lastQuery = itemData.query
+            self.itemsStore.append(models: itemData.items)
+            
+            if self.lastQuery != itemData.query {
+                self.lastQuery = itemData.query
+            }
+            
             if let nextPageToken = itemData.nextPageToken {
                 self.nextPageToken = Int(nextPageToken)
             } else {

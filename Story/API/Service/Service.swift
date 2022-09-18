@@ -8,11 +8,11 @@ enum ServiceError: Error {
     case decode
 }
 
-protocol ServiceProtocol {
+protocol Service {
     func get(page: Int?, query: String) -> AnyPublisher<ItemData, Error>
 }
 
-final class StoryService: ServiceProtocol {
+final class StoryService: Service {
     
     func get(page: Int?, query: String) -> AnyPublisher<ItemData, Error> {
         var dataTask: URLSessionDataTask?
