@@ -16,7 +16,7 @@ class StoryTests: XCTestCase {
         let mockService = MockService()
         let viewModel = ListViewModel(storyService: mockService)
         viewModel.fetchNextPage()
-        XCTAssertEqual(viewModel.state, .loading)
+        XCTAssertEqual(viewModel.state, .initialLoading)
     }
     
     @MainActor func testViewModelState_finishedLoading() throws {

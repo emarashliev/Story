@@ -34,6 +34,6 @@ struct AnyModelStore<Model>: ModelStore where Model: Identifiable {
     
 extension Sequence where Element: Identifiable {
     func groupingByUniqueID() -> [Element.ID: Element] {
-        return Dictionary(uniqueKeysWithValues: map { ($0.id, $0) })
+        Dictionary(uniqueKeysWithValues: map { ($0.id, $0) })
     }
 }

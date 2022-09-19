@@ -13,7 +13,6 @@ final class ListViewController: UIViewController {
     private var dataSource: DataSource! = nil
     private lazy var contentView = ListView()
     private let viewModel: ListViewModel
-    private var bindings = Set<AnyCancellable>()
     
     init(viewModel: ListViewModel = ListViewModel()) {
         self.viewModel = viewModel
@@ -131,7 +130,7 @@ extension ListViewController: UICollectionViewDelegate {
 
 extension ListViewController {
     private func configureDataSource() {
-        let cellRegistration = CellRegistration { [weak self] cell, indexPath, itemID in
+        let cellRegistration = CellRegistration { [weak self] cell, _, itemID in
             guard let self = self else { return }
             guard let item = self.viewModel.itemsStore.fetchByID(itemID) else { return }
             
@@ -141,9 +140,9 @@ extension ListViewController {
             
             let size = cell.cover.frame.size
             Task {
-                if let sizedImage = try? await self.setCover(with: item, for: size) {
+                if let image = await self.getCover(with: item, for: size) {
                     await MainActor.run {
-                        cell.cover.image = sizedImage
+                        cell.cover.image = image
                     }
                 }
             }
@@ -151,7 +150,7 @@ extension ListViewController {
         
         
         dataSource = DataSource(collectionView: contentView.collectionView) { collectionView, indexPath, identifier in
-            return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: identifier)
+            collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: identifier)
         }
         
         let headerRegistration = HeaderRegistration(elementKind: UICollectionView.elementKindSectionHeader) { _, _, _ in }
@@ -190,9 +189,14 @@ extension ListViewController {
         return supplementaryViews?.first as? ListCollectionFooter
     }
     
-    @ImageCache private func setCover(with item: Item, for size: CGSize) async throws -> UIImage? {
+    @ImageCache private func getCover(with item: Item, for size: CGSize) async -> UIImage? {
         let scale =  size.height / CGFloat(item.formats.first?.cover.height ?? 1)
-        let image = try await ImageCache.shared.load(url: item.formats.first?.cover.url, scale: scale)
+        var image: UIImage? = nil
+        do {
+            image = try await ImageCache.shared.load(url: item.formats.first?.cover.url, scale: scale)
+        } catch {
+            print("ImageCache ERROR: \(error.localizedDescription)")
+        }
         return await image?.byPreparingForDisplay()
     }
 }
