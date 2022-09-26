@@ -2,10 +2,10 @@
 import UIKit
 
 final class ListCollectionCellViewModel {
-    @Published var title: String?
-    @Published var authors: String?
-    @Published var narrators: String?
-    @Published var image: UIImage?
+    @MainActor @Published var title: String?
+    @MainActor @Published var authors: String?
+    @MainActor @Published var narrators: String?
+    @MainActor @Published var image: UIImage?
         
     private let item: Item
     private let coverSize: CGSize
@@ -14,11 +14,12 @@ final class ListCollectionCellViewModel {
     init(item: Item, coverSize: CGSize) {
         self.item = item
         self.coverSize = coverSize
-        
-        configure()
+        Task {
+            await configure()
+        }
     }
     
-    func resetCell() {
+    @MainActor func resetCell() {
         imageTask?.cancel()
         title = ""
         authors = ""
@@ -26,7 +27,7 @@ final class ListCollectionCellViewModel {
         image = nil
     }
     
-    private func configure() {
+    @MainActor private func configure() {
         title = item.title
         authors = "by \(item.authors.map { $0.name }.joined(separator: ","))"
         narrators = "with \(item.narrators.map { $0.name }.joined(separator: ","))"
@@ -47,6 +48,8 @@ final class ListCollectionCellViewModel {
         var image: UIImage? = nil
         do {
             image = try await ImageCache.shared.load(url: item.formats.first?.cover.url, scale: scale)
+        } catch URLError.cancelled {
+            print("ImageCache task was cancelled")
         } catch {
             print("ImageCache ERROR: \(error.localizedDescription)")
         }

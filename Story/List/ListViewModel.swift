@@ -44,7 +44,8 @@ extension ListViewModel {
     @MainActor private func fetchItems(page: Int) {
         let completionHandler: (Subscribers.Completion<Error>) -> Void = { [weak self] completion in
             switch completion {
-            case .failure:
+            case .failure(let error):
+                print(error.localizedDescription)
                 self?.state = .error(.itemsFetch)
             case .finished:
                 if self?.nextPageToken == nil {
