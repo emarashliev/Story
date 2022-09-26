@@ -133,21 +133,10 @@ extension ListViewController {
         let cellRegistration = CellRegistration { [weak self] cell, _, itemID in
             guard let self = self else { return }
             guard let item = self.viewModel.itemsStore.fetchByID(itemID) else { return }
-            
-            cell.title.text = item.title
-            cell.authors.text = "by \(item.authors.map { $0.name }.joined(separator: ","))"
-            cell.narrators.text = "with \(item.narrators.map { $0.name }.joined(separator: ","))"
-            
+              
             let size = cell.cover.frame.size
-            Task {
-                if let image = await self.getCover(with: item, for: size) {
-                    await MainActor.run {
-                        cell.cover.image = image
-                    }
-                }
-            }
+            cell.viewModel = ListCollectionCellViewModel(item: item, coverSize: size)
         }
-        
         
         dataSource = DataSource(collectionView: contentView.collectionView) { collectionView, indexPath, identifier in
             collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: identifier)
@@ -187,16 +176,5 @@ extension ListViewController {
             ofKind: UICollectionView.elementKindSectionFooter
         )
         return supplementaryViews?.first as? ListCollectionFooter
-    }
-    
-    @ImageCache private func getCover(with item: Item, for size: CGSize) async -> UIImage? {
-        let scale =  size.height / CGFloat(item.formats.first?.cover.height ?? 1)
-        var image: UIImage? = nil
-        do {
-            image = try await ImageCache.shared.load(url: item.formats.first?.cover.url, scale: scale)
-        } catch {
-            print("ImageCache ERROR: \(error.localizedDescription)")
-        }
-        return await image?.byPreparingForDisplay()
     }
 }

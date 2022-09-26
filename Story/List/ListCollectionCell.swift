@@ -1,15 +1,22 @@
 
 
 import UIKit
+import Combine
 
 final class ListCollectionCell: UICollectionViewCell {
     static let identifier = "ListCollectionCell"
+    
+    var viewModel: ListCollectionCellViewModel? {
+        didSet { configureViewModel() }
+    }
     
     lazy var cover = UIImageView(image: UIImage(systemName: "text.book.closed"))
     lazy var title = UILabel()
     lazy var authors = UILabel()
     lazy var narrators = UILabel()
     
+    private var bindings = Set<AnyCancellable>()
+
     override init(frame: CGRect) {
         super.init(frame: .zero)
         
@@ -23,7 +30,9 @@ final class ListCollectionCell: UICollectionViewCell {
     }
     
     override func prepareForReuse() {
-        cover.image = UIImage(systemName: "text.book.closed")
+        viewModel?.resetCell()
+        bindings.removeAll()
+        super.prepareForReuse()
     }
 }
 
@@ -64,5 +73,23 @@ extension ListCollectionCell {
             narrators.leadingAnchor.constraint(equalTo: cover.trailingAnchor, constant: 4),
             narrators.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -4),
         ])
+    }
+    
+    private func configureViewModel() {
+        viewModel?.$title
+            .assign(to: \.text, on: title)
+            .store(in: &bindings)
+        
+        viewModel?.$authors
+            .assign(to: \.text, on: authors)
+            .store(in: &bindings)
+        
+        viewModel?.$narrators
+            .assign(to: \.text, on: narrators)
+            .store(in: &bindings)
+        
+        viewModel?.$image
+            .assign(to: \.image, on: cover)
+            .store(in: &bindings)
     }
 }
