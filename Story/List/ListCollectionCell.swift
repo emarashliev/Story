@@ -10,10 +10,12 @@ final class ListCollectionCell: UICollectionViewCell {
         didSet { configureViewModel() }
     }
     
-    lazy var cover = UIImageView(image: UIImage(systemName: "text.book.closed"))
-    lazy var title = UILabel()
-    lazy var authors = UILabel()
-    lazy var narrators = UILabel()
+    lazy var cover = UIImageView()
+    private lazy var title = UILabel()
+    private lazy var authors = UILabel()
+    private lazy var narrators = UILabel()
+    private let activityIndicatorView = UIActivityIndicatorView(style: .medium)
+
     
     private var bindings = Set<AnyCancellable>()
 
@@ -47,11 +49,15 @@ extension ListCollectionCell {
         title.font = UIFont.boldSystemFont(ofSize: 17.0)
         authors.textColor = .gray
         narrators.textColor = .gray
+        activityIndicatorView.hidesWhenStopped = true
         
-        subviews.forEach {
-            contentView.addSubview($0)
-            $0.translatesAutoresizingMaskIntoConstraints = false
+        for view in subviews {
+            contentView.addSubview(view)
+            view.translatesAutoresizingMaskIntoConstraints = false
         }
+        
+        cover.addSubview(activityIndicatorView)
+        activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
     }
     
     private func configureConstraints() {
@@ -60,6 +66,9 @@ extension ListCollectionCell {
             cover.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 2),
             cover.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -2),
             cover.widthAnchor.constraint(equalTo: cover.heightAnchor),
+            
+            activityIndicatorView.centerXAnchor.constraint(equalTo: cover.centerXAnchor),
+            activityIndicatorView.centerYAnchor.constraint(equalTo: cover.centerYAnchor),
 
             title.leadingAnchor.constraint(equalTo: cover.trailingAnchor, constant: 4),
             title.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -4),
@@ -90,6 +99,16 @@ extension ListCollectionCell {
         
         viewModel?.$image
             .assign(to: \.image, on: cover)
+            .store(in: &bindings)
+        
+        viewModel?.$activityIndicatorViewAnimating
+            .sink { [weak self] animating in
+                if animating {
+                    self?.activityIndicatorView.startAnimating()
+                } else {
+                    self?.activityIndicatorView.stopAnimating()
+                }
+            }
             .store(in: &bindings)
     }
 }

@@ -26,7 +26,7 @@ import UIKit
     
     private func add(image: UIImage, with url: URL) {
         let key = url.absoluteString as NSString
-        cachedImages.setObject(image, forKey: key, cost: image.jpegData(compressionQuality: 1)?.count ?? 0)
+        cachedImages.setObject(image, forKey: key)
     }
     
     private func getImage(with url: URL) -> UIImage? {

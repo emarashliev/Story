@@ -6,6 +6,7 @@ final class ListCollectionCellViewModel {
     @MainActor @Published var authors: String?
     @MainActor @Published var narrators: String?
     @MainActor @Published var image: UIImage?
+    @MainActor @Published var activityIndicatorViewAnimating = true
         
     private let item: Item
     private let coverSize: CGSize
@@ -21,10 +22,11 @@ final class ListCollectionCellViewModel {
     
     @MainActor func resetCell() {
         imageTask?.cancel()
+        image = nil
         title = ""
         authors = ""
         narrators = ""
-        image = nil
+        activityIndicatorViewAnimating = true
     }
     
     @MainActor private func configure() {
@@ -38,6 +40,7 @@ final class ListCollectionCellViewModel {
             if let image = await self.getCover(with: self.item, for: self.coverSize) {
                 await MainActor.run {
                     self.image = image
+                    self.activityIndicatorViewAnimating = false
                 }
             }
         }
